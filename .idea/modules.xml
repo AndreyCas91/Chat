@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/chat (3).iml" filepath="$PROJECT_DIR$/.idea/chat (3).iml" />
+      <module fileurl="file://$PROJECT_DIR$/chat/chat_12.20.iml" filepath="$PROJECT_DIR$/chat/chat_12.20.iml" />
+      <module fileurl="file://$PROJECT_DIR$/chat/client/client.iml" filepath="$PROJECT_DIR$/chat/client/client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/chat/server/server.iml" filepath="$PROJECT_DIR$/chat/server/server.iml" />
+    </modules>
+  </component>
+</project>
