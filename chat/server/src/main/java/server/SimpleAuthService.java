@@ -1,51 +1,76 @@
 package server;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
 
 public class SimpleAuthService implements AuthService{
-    private class UserData{
-        String login;
-        String password;
-        String nickname;
-
-        public UserData(String login, String password, String nickname) {
-            this.login = login;
-            this.password = password;
-            this.nickname = nickname;
-        }
-    }
-
-    List<UserData> users;
+    private static Connection connection;
+    private static Statement stmt;
+    private static PreparedStatement psInsert;
 
     public SimpleAuthService(){
-        users = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            users.add(new UserData("login" + i, "pass" + i, "nick" + i));
+        try {
+            connect();
+            stmt.executeUpdate("INSERT INTO users (login, password, nickname) VALUES ('qwe', 'qwe', 'qwe'), " +
+                    "('asd', 'asd', 'asd'), ('zxc', 'zxc', 'zxc')");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
         }
-        users.add(new UserData("qwe", "qwe", "qwe"));
-        users.add(new UserData("asd", "asd", "asd"));
-        users.add(new UserData("zxc", "zxc", "zxc"));
     }
 
     @Override
     public String getNicknameByLoginAndPassword(String login, String password) {
-        for (UserData user: users) {
-            if (user.login.equals(login) && user.password.equals(password)){
-                return user.nickname;
+        try {
+            ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+            while (rs.next()){
+                if(rs.getString(2).equals(login) && rs.getString(3).equals(password)){
+                    return rs.getString(4);
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
     @Override
     public boolean registration(String login, String password, String nickname) {
-        for (UserData user : users){
-            if(user.login.equals(login) || user.nickname.equals(nickname)){
-                return false;
+        try {
+            ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+            while (rs.next()){
+                if(rs.getString(2).equals(login) || rs.getString(4).equals(nickname)){
+                    return false;
+                }
             }
+
+            psInsert = connection.prepareStatement("INSERT INTO users (login, password, nickname) VALUES (?, ?, ?)");
+            psInsert.setString(1, login);
+            psInsert.setString(2, password);
+            psInsert.setString(3, nickname);
+            psInsert.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        users.add(new UserData(login, password, nickname));
         return true;
+    }
+
+    public static void connect() throws ClassNotFoundException, SQLException {
+        Class.forName("org.sqlite.JDBC");
+        connection = DriverManager.getConnection("jdbc:sqlite:main.db");
+        stmt = connection.createStatement();
+    }
+
+    @Override
+    public void disconnect(){
+        try {
+            stmt.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 }
