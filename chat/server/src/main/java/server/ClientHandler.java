@@ -2,6 +2,8 @@ package server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientHandler {
 
@@ -13,6 +15,7 @@ public class ClientHandler {
     private String login;
     private FileOutputStream fileOS;
     private BufferedReader fileBR;
+    private ExecutorService service;
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -20,8 +23,17 @@ public class ClientHandler {
             this.socket = socket;
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
+/* Выбрал CachedThreadPool. чат у нас заточен под групповое общение, считаю что так будет эффективно. Под каждого
+пользователя свой поток. Отключился, за ним и поток отключится.
 
-            new Thread(()-> {
+Считаю что использовать ExecutorService нужно, если кол-во пользователей будет большое, но не уверен что правильно выбрал
+CachedThreadPool.
+
+ */
+
+            service = Executors.newCachedThreadPool();
+
+            service.execute(()-> {
                     try {
                         // цикл аутентификации
                         while (true){
@@ -112,9 +124,11 @@ public class ClientHandler {
                             e.printStackTrace();
                         }
                     }
-            }).start();
+            });
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            service.shutdown();
         }
     }
 
