@@ -40,6 +40,7 @@ public class ClientHandler {
                                         sendMsg("/authok " + nickname);
                                         server.subscribe(this);
                                         System.out.println("Клиент " + nickname + " подключился");
+                                        server.log("Клиент " + nickname + " подключился");
                                         socket.setSoTimeout(0);
                                         break;
                                     }else{
@@ -92,6 +93,7 @@ public class ClientHandler {
                         e.printStackTrace();
                     }finally {
                         System.out.println("Клиент отключился");
+                        server.log("Клиент отключился");
                         server.unsubscribe(this);
                         try {
                             socket.close();
