@@ -7,8 +7,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class Server {
+    private static Logger logger = Logger.getLogger("");
+    private static Handler fileHandler;
 
     private static int PORT = 8189;
     ServerSocket server = null;
@@ -21,15 +27,19 @@ public class Server {
         authService = new SimpleAuthService();
 
         try {
+            handlerFile();
             server = new ServerSocket(PORT);
             System.out.println("Сервер запущен");
+            log("Сервер запущен");
 
             while (true) {
                 socket = server.accept();
                 System.out.println("Клиент подключился");
+                log("Клиент подключился");
                 new ClientHandler(this, socket);
             }
         } catch (IOException e) {
+            log("Ошибка на сервере: " + e.toString());
             e.printStackTrace();
         } finally {
             try {
@@ -96,5 +106,16 @@ public class Server {
         for (ClientHandler c: clients){
             c.sendMsg(msg);
         }
+    }
+
+    public void log(String msg){
+        logger.info(msg);
+    }
+
+    public void handlerFile() throws IOException {
+        fileHandler = new FileHandler("Server.log", true);
+        fileHandler.setFormatter(new SimpleFormatter());
+        logger.setUseParentHandlers(false);
+        logger.addHandler(fileHandler);
     }
 }

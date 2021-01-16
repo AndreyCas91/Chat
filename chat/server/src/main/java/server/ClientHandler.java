@@ -51,6 +51,7 @@ CachedThreadPool.
                                         sendMsg("/authok " + nickname);
                                         server.subscribe(this);
                                         System.out.println("Клиент " + nickname + " подключился");
+                                        server.log("Клиент " + nickname + " подключился");
                                         socket.setSoTimeout(0);
                                         fileOS = new FileOutputStream("chat/" +
                                                 "client/src/main/java/client/" +
@@ -112,9 +113,11 @@ CachedThreadPool.
                             }
                         }
                     } catch (IOException e) {
+                        server.log("Ошибка со стороны клиента: " + e.toString());
                         e.printStackTrace();
                     }finally {
                         System.out.println("Клиент отключился");
+                        server.log("Клиент отключился");
                         server.unsubscribe(this);
                         try {
                             fileOS.close();
