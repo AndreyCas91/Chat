@@ -34,6 +34,7 @@ public class Server {
         } finally {
             try {
                 server.close();
+                authService.disconnect();
             } catch (IOException e) {
                 e.printStackTrace();
             }
