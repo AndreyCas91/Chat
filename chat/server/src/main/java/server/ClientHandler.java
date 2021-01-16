@@ -1,8 +1,6 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class ClientHandler {
@@ -13,7 +11,8 @@ public class ClientHandler {
     DataOutputStream out;
     private String nickname;
     private String login;
-
+    private FileOutputStream fileOS;
+    private BufferedReader fileBR;
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -42,6 +41,9 @@ public class ClientHandler {
                                         System.out.println("Клиент " + nickname + " подключился");
                                         server.log("Клиент " + nickname + " подключился");
                                         socket.setSoTimeout(0);
+                                        fileOS = new FileOutputStream("chat/" +
+                                                "client/src/main/java/client/" +
+                                                "historyChat/history_" + login + ".txt", true);
                                         break;
                                     }else{
                                         sendMsg("С данной учетной записью уже зашли");
@@ -67,6 +69,15 @@ public class ClientHandler {
                         }
 
                         // цикл работы
+                        fileBR = new BufferedReader(new FileReader("chat/" +
+                                "client/src/main/java/client/" +
+                                "historyChat/history_" + login + ".txt"));
+
+                        String strChat;
+                        while ((strChat = fileBR.readLine()) != null){
+                            sendMsg(strChat + "\n");
+                        }
+
                         while (true) {
                             String str = in.readUTF();
 
@@ -96,6 +107,8 @@ public class ClientHandler {
                         server.log("Клиент отключился");
                         server.unsubscribe(this);
                         try {
+                            fileOS.close();
+                            fileBR.close();
                             socket.close();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -121,5 +134,9 @@ public class ClientHandler {
 
     public String getLogin() {
         return login;
+    }
+
+    public void historyChat(String str) throws IOException {
+        fileOS.write((str + "\n").getBytes());
     }
 }

@@ -48,12 +48,13 @@ public class Server {
         }
     }
 
-    void broadCastMsg(ClientHandler sender, String msg) {
+    void broadCastMsg(ClientHandler sender, String msg) throws IOException {
         SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
 
         String message = String.format("%s %s : %s", formater.format(new Date()), sender.getNickname(), msg);
         for (ClientHandler client : clients) {
             client.sendMsg(message + "\n");
+            client.historyChat(message);
         }
     }
 
